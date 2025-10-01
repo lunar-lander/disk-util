@@ -210,7 +210,7 @@ backup: ## Create backup of source code
 # Platform-specific commands
 windows-setup: ## Windows-specific setup
 	@echo "🪟 Windows setup..."
-	@echo "Make sure you have Visual Studio Build Tools installed"
+	@echo "Make sure you have Visual Studio## I Build Tools installed"
 
 macos-setup: ## macOS-specific setup
 	@echo "🍎 macOS setup..."
@@ -230,10 +230,6 @@ info: ## Show project information
 	@echo ""
 	@echo "Project Structure:"
 	@tree -I 'node_modules|dist|release' -L 3 || ls -la
-
-lol:
-	@echo "😂 Here's a joke to lighten your day:"
-	@echo "Why do programmers prefer dark mode? Because light attracts bugs!"
 
 # Default values for variables
 NODE_ENV ?= development
