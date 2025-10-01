@@ -1,0 +1,138 @@
+.container {
+  background: var(--bg-card);
+  border-radius: 8px;
+  box-shadow: var(--shadow);
+  overflow: hidden;
+  margin: 16px 0;
+}
+
+.header {
+  background: var(--bg-secondary);
+  padding: 16px 20px;
+  border-bottom: 1px solid var(--border-color);
+}
+
+.title {
+  font-size: 18px;
+  font-weight: 600;
+  color: var(--text-primary);
+  margin: 0;
+}
+
+.table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.tableHeader {
+  background: var(--bg-secondary);
+}
+
+.tableHeader th {
+  padding: 12px 16px;
+  text-align: left;
+  font-weight: 600;
+  color: var(--text-secondary);
+  font-size: 14px;
+  border-bottom: 1px solid var(--border-color);
+}
+
+.tableBody tr {
+  border-bottom: 1px solid var(--border-color);
+  transition: background-color 0.2s ease;
+}
+
+.tableBody tr:hover {
+  background: var(--bg-secondary);
+}
+
+.tableBody tr:last-child {
+  border-bottom: none;
+}
+
+.tableBody td {
+  padding: 12px 16px;
+  font-size: 14px;
+  color: var(--text-primary);
+}
+
+.deviceCell {
+  font-weight: 500;
+  color: var(--accent-color);
+}
+
+.usageBar {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.progressContainer {
+  flex: 1;
+  height: 6px;
+  background: var(--border-color);
+  border-radius: 3px;
+  overflow: hidden;
+}
+
+.progressBar {
+  height: 100%;
+  border-radius: 3px;
+  transition: width 0.3s ease;
+}
+
+.progressLow {
+  background: var(--success-color);
+}
+
+.progressMedium {
+  background: var(--warning-color);
+}
+
+.progressHigh {
+  background: var(--danger-color);
+}
+
+.usageText {
+  font-size: 12px;
+  font-weight: 500;
+  min-width: 40px;
+  text-align: right;
+}
+
+.sizeText {
+  font-family: 'Courier New', monospace;
+  font-size: 13px;
+}
+
+.loading {
+  padding: 40px;
+  text-align: center;
+  color: var(--text-secondary);
+}
+
+.error {
+  padding: 40px;
+  text-align: center;
+  color: var(--danger-color);
+}
+
+.refreshButton {
+  background: var(--accent-color);
+  color: white;
+  border: none;
+  padding: 8px 16px;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 14px;
+  transition: opacity 0.2s ease;
+}
+
+.refreshButton:hover {
+  opacity: 0.9;
+}
+
+.refreshButton:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}

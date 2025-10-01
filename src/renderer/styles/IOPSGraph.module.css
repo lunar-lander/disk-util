@@ -1,0 +1,128 @@
+.container {
+  background: var(--bg-card);
+  border-radius: 8px;
+  box-shadow: var(--shadow);
+  overflow: hidden;
+  margin: 16px 0;
+}
+
+.header {
+  background: var(--bg-secondary);
+  padding: 16px 20px;
+  border-bottom: 1px solid var(--border-color);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.title {
+  font-size: 18px;
+  font-weight: 600;
+  color: var(--text-primary);
+  margin: 0;
+}
+
+.controls {
+  display: flex;
+  gap: 12px;
+  align-items: center;
+}
+
+.deviceSelect {
+  background: var(--bg-card);
+  border: 1px solid var(--border-color);
+  border-radius: 4px;
+  padding: 6px 12px;
+  color: var(--text-primary);
+  font-size: 14px;
+  cursor: pointer;
+}
+
+.deviceSelect:focus {
+  outline: none;
+  border-color: var(--accent-color);
+}
+
+.refreshButton {
+  background: var(--accent-color);
+  color: white;
+  border: none;
+  padding: 6px 12px;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 14px;
+  transition: opacity 0.2s ease;
+}
+
+.refreshButton:hover {
+  opacity: 0.9;
+}
+
+.refreshButton:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.chartContainer {
+  padding: 20px;
+  height: 400px;
+  position: relative;
+}
+
+.loading {
+  padding: 40px;
+  text-align: center;
+  color: var(--text-secondary);
+}
+
+.error {
+  padding: 40px;
+  text-align: center;
+  color: var(--danger-color);
+}
+
+.noData {
+  padding: 40px;
+  text-align: center;
+  color: var(--text-secondary);
+}
+
+.stats {
+  display: flex;
+  gap: 20px;
+  padding: 16px 20px;
+  background: var(--bg-secondary);
+  border-top: 1px solid var(--border-color);
+}
+
+.statItem {
+  flex: 1;
+  text-align: center;
+}
+
+.statValue {
+  font-size: 24px;
+  font-weight: 600;
+  color: var(--text-primary);
+  margin: 0;
+}
+
+.statLabel {
+  font-size: 12px;
+  color: var(--text-secondary);
+  margin: 4px 0 0 0;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.readStat .statValue {
+  color: var(--accent-color);
+}
+
+.writeStat .statValue {
+  color: var(--success-color);
+}
+
+.totalStat .statValue {
+  color: var(--warning-color);
+}
