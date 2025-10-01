@@ -38,10 +38,11 @@ interface DataPoint {
 
 export const IOPSGraph: React.FC<IOPSGraphProps> = ({ onRefresh, refreshing = false }) => {
   const [iopsData, setIOPSData] = useState<IOPSData[]>([]);
-  const [selectedDevice, setSelectedDevice] = useState<string>('');
   const [historicalData, setHistoricalData] = useState<Map<string, DataPoint[]>>(new Map());
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [showAllDevices, setShowAllDevices] = useState(true);
+  const [selectedDevices, setSelectedDevices] = useState<Set<string>>(new Set());
   const intervalRef = useRef<NodeJS.Timeout | null>(null);
 
   const fetchIOPSData = async () => {
@@ -75,9 +76,9 @@ export const IOPSGraph: React.FC<IOPSGraphProps> = ({ onRefresh, refreshing = fa
         return newData;
       });
 
-      // Set default selected device if none selected
-      if (!selectedDevice && data.length > 0) {
-        setSelectedDevice(data[0].device);
+      // Initialize selected devices if none selected
+      if (selectedDevices.size === 0 && data.length > 0) {
+        setSelectedDevices(new Set(data.map(d => d.device)));
       }
     } catch (err) {
       setError('Failed to fetch IOPS data');
@@ -101,11 +102,14 @@ export const IOPSGraph: React.FC<IOPSGraphProps> = ({ onRefresh, refreshing = fa
   }, []);
 
   useEffect(() => {
-    // Update selected device if it's no longer available
-    if (selectedDevice && !iopsData.find(d => d.device === selectedDevice) && iopsData.length > 0) {
-      setSelectedDevice(iopsData[0].device);
+    // Update selected devices if any are no longer available
+    const availableDevices = new Set(iopsData.map(d => d.device));
+    const validSelectedDevices = new Set([...selectedDevices].filter(device => availableDevices.has(device)));
+    
+    if (validSelectedDevices.size !== selectedDevices.size) {
+      setSelectedDevices(validSelectedDevices.size > 0 ? validSelectedDevices : availableDevices);
     }
-  }, [iopsData, selectedDevice]);
+  }, [iopsData, selectedDevices]);
 
   const handleRefresh = () => {
     fetchIOPSData();
@@ -113,53 +117,74 @@ export const IOPSGraph: React.FC<IOPSGraphProps> = ({ onRefresh, refreshing = fa
   };
 
   const getCurrentStats = () => {
-    const currentData = iopsData.find(d => d.device === selectedDevice);
-    return currentData || { readIOPS: 0, writeIOPS: 0, totalIOPS: 0 };
+    const selectedData = iopsData.filter(d => selectedDevices.has(d.device));
+    if (selectedData.length === 0) return { readIOPS: 0, writeIOPS: 0, totalIOPS: 0 };
+    
+    return selectedData.reduce((acc, device) => ({
+      readIOPS: acc.readIOPS + device.readIOPS,
+      writeIOPS: acc.writeIOPS + device.writeIOPS,
+      totalIOPS: acc.totalIOPS + device.totalIOPS
+    }), { readIOPS: 0, writeIOPS: 0, totalIOPS: 0 });
   };
 
   const getChartData = () => {
-    const deviceHistory = historicalData.get(selectedDevice) || [];
-
-    if (deviceHistory.length === 0) {
-      return {
-        labels: [],
-        datasets: []
-      };
+    if (selectedDevices.size === 0 || historicalData.size === 0) {
+      return { labels: [], datasets: [] };
     }
 
-    const labels = deviceHistory.map((_, index) =>
-      `${Math.max(0, (deviceHistory.length - index - 1) * 5)}s ago`
+    // Get the longest history to determine labels
+    const maxHistoryLength = Math.max(
+      ...[...selectedDevices].map(device => historicalData.get(device)?.length || 0)
+    );
+
+    if (maxHistoryLength === 0) {
+      return { labels: [], datasets: [] };
+    }
+
+    const labels = Array.from({ length: maxHistoryLength }, (_, index) => 
+      `${Math.max(0, (maxHistoryLength - index - 1) * 5)}s ago`
     ).reverse();
 
-    return {
-      labels,
-      datasets: [
-        {
-          label: 'Read IOPS',
-          data: deviceHistory.map(d => d.readIOPS),
-          borderColor: 'rgb(0, 122, 204)',
-          backgroundColor: 'rgba(0, 122, 204, 0.1)',
-          tension: 0.1,
-          fill: false,
-        },
-        {
-          label: 'Write IOPS',
-          data: deviceHistory.map(d => d.writeIOPS),
-          borderColor: 'rgb(40, 167, 69)',
-          backgroundColor: 'rgba(40, 167, 69, 0.1)',
-          tension: 0.1,
-          fill: false,
-        },
-        {
-          label: 'Total IOPS',
-          data: deviceHistory.map(d => d.totalIOPS),
-          borderColor: 'rgb(255, 193, 7)',
-          backgroundColor: 'rgba(255, 193, 7, 0.1)',
-          tension: 0.1,
-          fill: false,
-        },
-      ],
-    };
+    const datasets = [];
+    const colors = [
+      { border: 'rgb(0, 122, 204)', bg: 'rgba(0, 122, 204, 0.1)' },      // Blue
+      { border: 'rgb(40, 167, 69)', bg: 'rgba(40, 167, 69, 0.1)' },       // Green
+      { border: 'rgb(255, 193, 7)', bg: 'rgba(255, 193, 7, 0.1)' },       // Yellow
+      { border: 'rgb(220, 53, 69)', bg: 'rgba(220, 53, 69, 0.1)' },       // Red
+      { border: 'rgb(108, 117, 125)', bg: 'rgba(108, 117, 125, 0.1)' },   // Gray
+      { border: 'rgb(255, 105, 180)', bg: 'rgba(255, 105, 180, 0.1)' },   // Pink
+      { border: 'rgb(75, 0, 130)', bg: 'rgba(75, 0, 130, 0.1)' },         // Indigo
+      { border: 'rgb(255, 165, 0)', bg: 'rgba(255, 165, 0, 0.1)' },       // Orange
+    ];
+
+    let colorIndex = 0;
+    for (const device of selectedDevices) {
+      const deviceHistory = historicalData.get(device) || [];
+      if (deviceHistory.length === 0) continue;
+
+      const color = colors[colorIndex % colors.length];
+      
+      // Pad data to match label length if needed
+      const paddedData = Array.from({ length: maxHistoryLength }, (_, index) => {
+        const dataIndex = deviceHistory.length - maxHistoryLength + index;
+        return dataIndex >= 0 ? deviceHistory[dataIndex].totalIOPS : 0;
+      });
+
+      datasets.push({
+        label: `${device} Total IOPS`,
+        data: paddedData,
+        borderColor: color.border,
+        backgroundColor: color.bg,
+        tension: 0.1,
+        fill: false,
+        pointRadius: 2,
+        pointHoverRadius: 4,
+      });
+
+      colorIndex++;
+    }
+
+    return { labels, datasets };
   };
 
   const chartOptions: ChartOptions<'line'> = {
@@ -171,7 +196,9 @@ export const IOPSGraph: React.FC<IOPSGraphProps> = ({ onRefresh, refreshing = fa
       },
       title: {
         display: true,
-        text: `IOPS for ${selectedDevice}`,
+        text: selectedDevices.size === 1 
+          ? `IOPS for ${[...selectedDevices][0]}` 
+          : `IOPS for ${selectedDevices.size} devices`,
       },
     },
     scales: {
@@ -229,17 +256,26 @@ export const IOPSGraph: React.FC<IOPSGraphProps> = ({ onRefresh, refreshing = fa
       <div className={styles.header}>
         <h2 className={styles.title}>IOPS Monitor</h2>
         <div className={styles.controls}>
-          <select
-            className={styles.deviceSelect}
-            value={selectedDevice}
-            onChange={(e) => setSelectedDevice(e.target.value)}
-          >
+          <div className={styles.deviceToggles}>
             {iopsData.map(device => (
-              <option key={device.device} value={device.device}>
-                {device.device}
-              </option>
+              <label key={device.device} className={styles.deviceToggle}>
+                <input
+                  type="checkbox"
+                  checked={selectedDevices.has(device.device)}
+                  onChange={(e) => {
+                    const newSelected = new Set(selectedDevices);
+                    if (e.target.checked) {
+                      newSelected.add(device.device);
+                    } else {
+                      newSelected.delete(device.device);
+                    }
+                    setSelectedDevices(newSelected);
+                  }}
+                />
+                <span className={styles.deviceName}>{device.device}</span>
+              </label>
             ))}
-          </select>
+          </div>
           <button
             className={styles.refreshButton}
             onClick={handleRefresh}
@@ -250,7 +286,7 @@ export const IOPSGraph: React.FC<IOPSGraphProps> = ({ onRefresh, refreshing = fa
         </div>
       </div>
 
-      {selectedDevice && historicalData.has(selectedDevice) ? (
+      {selectedDevices.size > 0 && [...selectedDevices].some(device => historicalData.has(device)) ? (
         <>
           <div className={styles.chartContainer}>
             <Line data={getChartData()} options={chartOptions} />

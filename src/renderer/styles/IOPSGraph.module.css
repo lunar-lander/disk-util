@@ -26,6 +26,44 @@
   display: flex;
   gap: 12px;
   align-items: center;
+  flex-wrap: wrap;
+}
+
+.deviceToggles {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  flex-wrap: wrap;
+}
+
+.deviceToggle {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  cursor: pointer;
+  padding: 4px 8px;
+  border-radius: 4px;
+  background: var(--bg-card);
+  border: 1px solid var(--border-color);
+  transition: all 0.2s ease;
+  font-size: 12px;
+  white-space: nowrap;
+}
+
+.deviceToggle:hover {
+  background: var(--bg-secondary);
+  border-color: var(--accent-color);
+}
+
+.deviceToggle input[type="checkbox"] {
+  margin: 0;
+  cursor: pointer;
+}
+
+.deviceName {
+  font-weight: 500;
+  color: var(--text-primary);
+  font-family: 'Courier New', monospace;
 }
 
 .deviceSelect {
