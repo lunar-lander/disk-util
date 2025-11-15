@@ -1,0 +1,191 @@
+.container {
+  padding: 20px;
+  background: var(--bg-primary);
+  min-height: 100vh;
+}
+
+.header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20px;
+  flex-wrap: wrap;
+  gap: 16px;
+}
+
+.header h2 {
+  margin: 0;
+  font-size: 24px;
+  font-weight: 600;
+  color: var(--text-primary);
+}
+
+.counts {
+  display: flex;
+  gap: 16px;
+}
+
+.count {
+  font-size: 14px;
+  font-weight: 600;
+  padding: 6px 12px;
+  background: var(--bg-secondary);
+  border-radius: 6px;
+}
+
+.actions {
+  display: flex;
+  gap: 8px;
+}
+
+.actionButton {
+  padding: 8px 16px;
+  border: 1px solid var(--border-color);
+  border-radius: 6px;
+  background: var(--bg-secondary);
+  color: var(--text-primary);
+  font-size: 13px;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.actionButton:hover {
+  background: var(--bg-tertiary);
+}
+
+.filters {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 20px;
+  flex-wrap: wrap;
+}
+
+.filterButton {
+  padding: 10px 20px;
+  border: 1px solid var(--border-color);
+  border-radius: 8px;
+  background: var(--bg-secondary);
+  color: var(--text-primary);
+  font-size: 14px;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.filterButton:hover {
+  background: var(--bg-tertiary);
+}
+
+.filterButton.active {
+  background: var(--accent-color);
+  color: white;
+  border-color: var(--accent-color);
+}
+
+.alertsList {
+  background: var(--bg-secondary);
+  border-radius: 12px;
+  padding: 20px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  max-height: calc(100vh - 300px);
+  overflow-y: auto;
+}
+
+.noAlerts {
+  text-align: center;
+  padding: 60px 20px;
+}
+
+.noAlertsIcon {
+  font-size: 64px;
+  color: #10b981;
+  margin-bottom: 16px;
+}
+
+.noAlertsText {
+  font-size: 24px;
+  font-weight: 600;
+  color: var(--text-primary);
+  margin-bottom: 8px;
+}
+
+.noAlertsSubtext {
+  font-size: 16px;
+  color: var(--text-secondary);
+}
+
+.alert {
+  display: flex;
+  align-items: flex-start;
+  gap: 16px;
+  padding: 16px;
+  margin-bottom: 12px;
+  background: var(--bg-tertiary);
+  border-radius: 8px;
+  border-left: 4px solid;
+  transition: all 0.2s;
+}
+
+.alert:hover {
+  transform: translateX(4px);
+}
+
+.alert.acknowledged {
+  opacity: 0.5;
+}
+
+.alertIcon {
+  font-size: 24px;
+  flex-shrink: 0;
+}
+
+.alertContent {
+  flex: 1;
+}
+
+.alertHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 8px;
+}
+
+.alertTitle {
+  font-size: 16px;
+  font-weight: 600;
+  color: var(--text-primary);
+}
+
+.alertTime {
+  font-size: 12px;
+  color: var(--text-secondary);
+}
+
+.alertMessage {
+  font-size: 14px;
+  color: var(--text-primary);
+  margin-bottom: 4px;
+}
+
+.alertDevice {
+  font-size: 12px;
+  color: var(--text-secondary);
+  font-family: monospace;
+}
+
+.acknowledgeButton {
+  padding: 6px 12px;
+  border: 1px solid var(--border-color);
+  border-radius: 6px;
+  background: var(--bg-secondary);
+  color: var(--text-primary);
+  font-size: 12px;
+  cursor: pointer;
+  transition: all 0.2s;
+  white-space: nowrap;
+}
+
+.acknowledgeButton:hover {
+  background: var(--accent-color);
+  color: white;
+  border-color: var(--accent-color);
+}
