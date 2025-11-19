@@ -1,14 +1,13 @@
 import React, { useState, useEffect } from 'react';
 import { DiskUsageTable } from './components/DiskUsageTable';
 import { IOPSGraph } from './components/IOPSGraph';
-import { SystemHealthDashboard } from './components/SystemHealthDashboard';
 import { SMARTMonitor } from './components/SMARTMonitor';
 import { ProcessIOMonitor } from './components/ProcessIOMonitor';
 import { AlertManager } from './components/AlertManager';
 import { useTheme } from './hooks/useTheme';
 import styles from './styles/App.module.css';
 
-type Tab = 'overview' | 'health' | 'smart' | 'processes' | 'alerts';
+type Tab = 'overview' | 'smart' | 'processes' | 'alerts';
 
 export const App: React.FC = () => {
   const { theme, toggleTheme } = useTheme();
@@ -50,7 +49,6 @@ export const App: React.FC = () => {
 
   const tabs: { id: Tab; label: string; icon: string }[] = [
     { id: 'overview', label: 'Disk Overview', icon: '💾' },
-    { id: 'health', label: 'System Health', icon: '❤️' },
     { id: 'smart', label: 'Drive Health', icon: '🔧' },
     { id: 'processes', label: 'Processes', icon: '⚙️' },
     { id: 'alerts', label: 'Alerts', icon: '🔔' }
@@ -121,13 +119,13 @@ export const App: React.FC = () => {
         {activeTab === 'overview' && (
           <div className={styles.overviewGrid}>
             <div className={styles.fullWidth}>
-              <DiskUsageTable
+              <IOPSGraph
                 onRefresh={handleRefresh}
                 refreshing={refreshing}
               />
             </div>
             <div className={styles.fullWidth}>
-              <IOPSGraph
+              <DiskUsageTable
                 onRefresh={handleRefresh}
                 refreshing={refreshing}
               />
@@ -135,7 +133,6 @@ export const App: React.FC = () => {
           </div>
         )}
 
-        {activeTab === 'health' && <SystemHealthDashboard />}
         {activeTab === 'smart' && <SMARTMonitor />}
         {activeTab === 'processes' && <ProcessIOMonitor />}
         {activeTab === 'alerts' && <AlertManager />}

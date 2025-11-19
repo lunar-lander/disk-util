@@ -22,12 +22,23 @@ export const AlertManager: React.FC = () => {
     }
   };
 
+  const isSystemDevice = (disk: { device: string; fileSystem: string }): boolean => {
+    // Skip loop devices and system filesystems
+    const excludedFileSystems = ['tmpfs', 'devtmpfs', 'squashfs', 'overlay', 'aufs', 'proc', 'sysfs', 'devfs', 'debugfs'];
+    return disk.device.startsWith('/dev/loop') || excludedFileSystems.includes(disk.fileSystem);
+  };
+
   const generateAlerts = (stats: SystemStats): Alert[] => {
     const alerts: Alert[] = [];
     const now = Date.now();
 
-    // Disk space alerts
+    // Disk space alerts (skip system/temporary devices)
     stats.diskUsage.forEach(disk => {
+      // Skip system devices
+      if (isSystemDevice(disk)) {
+        return;
+      }
+
       if (disk.usagePercentage >= 95) {
         alerts.push({
           id: `disk-critical-${disk.device}-${now}`,
@@ -59,39 +70,7 @@ export const AlertManager: React.FC = () => {
       }
     });
 
-    // CPU alerts
-    if (stats.cpuData && stats.cpuData.usage >= 90) {
-      alerts.push({
-        id: `cpu-critical-${now}`,
-        type: 'custom',
-        severity: 'critical',
-        title: 'High CPU Usage',
-        message: `CPU usage is at ${stats.cpuData.usage.toFixed(1)}%`,
-        value: stats.cpuData.usage,
-        threshold: 90,
-        timestamp: now,
-        acknowledged: false,
-        conditions: [{ metric: 'cpu-usage', operator: '>=', value: 90 }]
-      });
-    }
-
-    // Memory alerts
-    if (stats.memoryData && stats.memoryData.usagePercentage >= 90) {
-      alerts.push({
-        id: `memory-critical-${now}`,
-        type: 'custom',
-        severity: 'critical',
-        title: 'High Memory Usage',
-        message: `Memory usage is at ${stats.memoryData.usagePercentage.toFixed(1)}% (${formatBytes(stats.memoryData.available)} available)`,
-        value: stats.memoryData.usagePercentage,
-        threshold: 90,
-        timestamp: now,
-        acknowledged: false,
-        conditions: [{ metric: 'memory-usage', operator: '>=', value: 90 }]
-      });
-    }
-
-    // S.M.A.R.T. alerts
+    // S.M.A.R.T. alerts (disk-focused monitoring)
     if (stats.smartData) {
       stats.smartData.forEach(smart => {
         if (smart.healthStatus === 'FAILED') {

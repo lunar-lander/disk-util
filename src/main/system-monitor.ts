@@ -49,11 +49,22 @@ export class SystemMonitor {
     const { stdout } = await execAsync('df -h --output=source,target,size,used,avail,pcent,fstype');
     const lines = stdout.trim().split('\n').slice(1); // Skip header
 
+    // Filter out system/temporary filesystems
+    const excludedFileSystems = ['tmpfs', 'devtmpfs', 'squashfs', 'overlay', 'aufs', 'proc', 'sysfs', 'devfs', 'debugfs'];
+
     return lines
       .filter(line => line.trim().length > 0)
       .map(line => {
         const parts = line.trim().split(/\s+/);
         if (parts.length >= 7) {
+          const device = parts[0];
+          const fileSystem = parts[6] || 'unknown';
+
+          // Skip loop devices and excluded filesystems
+          if (device.startsWith('/dev/loop') || excludedFileSystems.includes(fileSystem)) {
+            return null;
+          }
+
           return {
             device: parts[0],
             mountPoint: parts[1],
@@ -61,7 +72,7 @@ export class SystemMonitor {
             usedSpace: this.parseSize(parts[3]),
             freeSpace: this.parseSize(parts[4]),
             usagePercentage: parseInt(parts[5].replace('%', '')),
-            fileSystem: parts[6] || 'unknown'
+            fileSystem: fileSystem
           };
         }
         return null;
