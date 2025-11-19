@@ -17,7 +17,17 @@ export const DiskUsageTable: React.FC<DiskUsageTableProps> = ({ onRefresh, refre
       setLoading(true);
       setError(null);
       const data = await window.electronAPI.getDiskUsage();
-      setDiskData(data);
+
+      // Extra client-side filtering to ensure no system devices slip through
+      const filteredData = data.filter(disk => {
+        const excludedFileSystems = ['tmpfs', 'devtmpfs', 'squashfs', 'overlay', 'aufs', 'proc', 'sysfs', 'devfs', 'debugfs'];
+        const isLoopDevice = disk.device.startsWith('/dev/loop');
+        const isExcludedFS = excludedFileSystems.includes(disk.fileSystem);
+
+        return !isLoopDevice && !isExcludedFS;
+      });
+
+      setDiskData(filteredData);
     } catch (err) {
       setError('Failed to fetch disk usage data');
       console.error('Error fetching disk usage:', err);

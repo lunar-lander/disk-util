@@ -49,14 +49,18 @@ export const IOPSGraph: React.FC<IOPSGraphProps> = ({ onRefresh, refreshing = fa
     try {
       setError(null);
       const data = await window.electronAPI.getIOPSData();
-      setIOPSData(data);
+
+      // Filter out loop and system devices
+      const filteredData = data.filter(device => !device.device.startsWith('loop'));
+
+      setIOPSData(filteredData);
 
       // Update historical data
       const currentTime = Date.now();
       setHistoricalData(prev => {
         const newData = new Map(prev);
 
-        data.forEach(deviceData => {
+        filteredData.forEach(deviceData => {
           const deviceHistory = newData.get(deviceData.device) || [];
           deviceHistory.push({
             timestamp: currentTime,
@@ -77,8 +81,8 @@ export const IOPSGraph: React.FC<IOPSGraphProps> = ({ onRefresh, refreshing = fa
       });
 
       // Initialize selected devices if none selected
-      if (selectedDevices.size === 0 && data.length > 0) {
-        setSelectedDevices(new Set(data.map(d => d.device)));
+      if (selectedDevices.size === 0 && filteredData.length > 0) {
+        setSelectedDevices(new Set(filteredData.map(d => d.device)));
       }
     } catch (err) {
       setError('Failed to fetch IOPS data');
